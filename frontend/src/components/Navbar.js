@@ -71,11 +71,17 @@ const Navbar = () => {
       pages.push({ title: 'Users', path: '/admin/users' });
       pages.push({ title: 'Stations', path: '/admin/stations' });
       pages.push({ title: 'Vehicles', path: '/admin/vehicles' });
+      pages.push({ title: 'Reports', path: '/admin/reports' });
     } else if (currentUser.roles.includes('ROLE_STATION_OWNER')) {
       pages.push({ title: 'Dashboard', path: '/station' });
+      pages.push({ title: 'My Stations', path: '/stations' }); // ✅ Fixed route
+      pages.push({ title: 'QR Scanner', path: '/qr-scanner' }); // ✅ Fixed route
+      pages.push({ title: 'Transactions', path: '/transactions' }); // ✅ Fixed route
     } else if (currentUser.roles.includes('ROLE_VEHICLE_OWNER')) {
       pages.push({ title: 'Dashboard', path: '/vehicle' });
-
+      pages.push({ title: 'My Vehicles', path: '/vehicle/list' });
+      pages.push({ title: 'Add Vehicle', path: '/vehicle/add' });
+      pages.push({ title: 'Quota Status', path: '/vehicle/quota' });
     }
   }
 
