@@ -12,38 +12,120 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../constants/Colors';
+import ApiService from '../services/ApiService';
+import StationService from '../services/StationService';
 
 const HomeScreen = ({ navigation }) => {
-  const [stationInfo, setStationInfo] = useState({ name: 'Fuel Station' });
+  const [stationInfo, setStationInfo] = useState({ 
+    name: 'Fuel Station',
+    ownerName: 'Owner',
+    address: 'Loading...',
+    phone: 'Loading...',
+    status: 'Loading...',
+    fuelTypes: 'Loading...',
+    registrationNumber: 'Loading...'
+  });
   const [todayStats, setTodayStats] = useState({
     transactions: 0,
     fuelDispensed: 0
   });
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStationInfo();
     loadTodayStats();
-  }, []);
-
-  const loadStationInfo = async () => {
+  }, []);  const loadStationInfo = async () => {
     try {
-      // For now, just show a simple station name
-      setStationInfo({ name: 'dummy' });
+      setLoading(true);
+      console.log('Loading station information...');
+      
+      // Get station ID from AsyncStorage
+      const stationId = await AsyncStorage.getItem('stationId');
+      console.log('Retrieved stationId:', stationId);
+      
+      if (!stationId) {
+        console.error('No station ID found in storage');
+        Alert.alert('Error', 'Station ID not found. Please login again.');
+        return;
+      }
+
+      // Fetch station info from API
+      const stationData = await ApiService.getStationInfo(stationId);
+      console.log('Station data received:', stationData);
+      
+      if (stationData) {
+        setStationInfo({
+          name: stationData.name || stationData.stationName || 'Fuel Station',
+          ownerName: stationData.ownerName || stationData.operatorName || 'Station Owner',
+          address: stationData.address || 'Address not available',
+          phone: stationData.phone || stationData.contactNumber || 'Contact not available',
+          status: stationData.status || 'Active',
+          fuelTypes: stationData.fuelTypes || 'Petrol, Diesel',
+          registrationNumber: stationData.registrationNumber || 'Not available'
+        });
+      } else {
+        throw new Error('No station data received');
+      }
     } catch (error) {
       console.error('Failed to load station info:', error);
+      Alert.alert(
+        'Error',
+        'Failed to load station information. Please check your connection and try again.',
+        [
+          {
+            text: 'Retry',
+            onPress: loadStationInfo
+          },
+          {
+            text: 'OK',
+            style: 'cancel'
+          }
+        ]
+      );
+      
+      // Keep existing data or set fallback
+      setStationInfo(prev => ({
+        ...prev,
+        status: 'Unable to load',
+        fuelTypes: 'Unable to load',
+        address: 'Unable to load',
+        phone: 'Unable to load'
+      }));
+    } finally {
+      setLoading(false);
     }
   };
-
   const loadTodayStats = async () => {
     try {
-      // Mock data - replace with actual API call
-      setTodayStats({
-        transactions: 24,
-        fuelDispensed: 1250.57
-      });
+      console.log('Loading today\'s statistics...');
+      
+      // Get station ID from AsyncStorage
+      const stationId = await AsyncStorage.getItem('stationId');
+      
+      if (!stationId) {
+        console.error('No station ID found for stats');
+        return;
+      }
+
+      // Fetch today's stats from API
+      const statsData = await ApiService.getTodayStats(stationId);
+      console.log('Stats data received:', statsData);
+      
+      if (statsData) {
+        setTodayStats({
+          transactions: statsData.todayTransactionCount || statsData.todayTransactions || 0,
+          fuelDispensed: statsData.todayFuelDispensed || 
+                         (statsData.todayPetrolDispensed + statsData.todayDieselDispensed) || 0
+        });
+      }
     } catch (error) {
       console.error('Failed to load stats:', error);
+      // Keep existing stats or set to 0
+      setTodayStats({
+        transactions: 0,
+        fuelDispensed: 0
+      });
     }
   };
 
@@ -90,7 +172,9 @@ const HomeScreen = ({ navigation }) => {
               />
             </View>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.welcomeText}>Hello Mr. Dummy</Text>
+              <Text style={styles.welcomeText}>
+                Hello Mr. {stationInfo?.ownerName || 'Owner'}
+              </Text>
               <Text style={styles.stationName}>
                 {stationInfo?.name || 'Fuel Station'}
               </Text>
@@ -130,8 +214,7 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.statLabel}>Fuel Dispensed</Text>
           </View>
         </View>
-      </View>      
-
+      </View>
       {/* Quick Actions */}
       <View style={styles.actionsContainer}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
@@ -194,7 +277,9 @@ const HomeScreen = ({ navigation }) => {
               size={20}
               color={Colors.primary}
             />
-            <Text style={styles.infoText}>Status: dummy status</Text>
+            <Text style={styles.infoText}>
+              Status: {loading ? 'Loading...' : stationInfo.status}
+            </Text>
           </View>
 
           {/* Fuel Types */}
@@ -204,7 +289,9 @@ const HomeScreen = ({ navigation }) => {
               size={20}
               color={Colors.secondary}
             />
-            <Text style={styles.infoText}>Fuel Types: dummy availabe</Text>
+            <Text style={styles.infoText}>
+              Fuel Types: {loading ? 'Loading...' : stationInfo.fuelTypes}
+            </Text>
           </View>
 
           {/* Address */}
@@ -214,7 +301,9 @@ const HomeScreen = ({ navigation }) => {
               size={20}
               color={Colors.primary}
             />
-            <Text style={styles.infoText}>dummy address</Text>
+            <Text style={styles.infoText}>
+              {loading ? 'Loading address...' : stationInfo.address}
+            </Text>
           </View>
 
           {/* Contact */}
@@ -224,8 +313,24 @@ const HomeScreen = ({ navigation }) => {
               size={20}
               color={Colors.primary}
             />
-            <Text style={styles.infoText}>Contact: dummy contact</Text>
+            <Text style={styles.infoText}>
+              Contact: {loading ? 'Loading...' : stationInfo.phone}
+            </Text>
           </View>
+
+          {/* Registration Number */}
+          {stationInfo.registrationNumber && stationInfo.registrationNumber !== 'Not available' && (
+            <View style={styles.infoRow}>
+              <MaterialIcons
+                name="assignment"
+                size={20}
+                color={Colors.primary}
+              />
+              <Text style={styles.infoText}>
+                Reg. No: {loading ? 'Loading...' : stationInfo.registrationNumber}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -326,8 +431,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   actionsContainer: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    margin: 20,
+    // marginHorizontal: 20,
+    // marginBottom: 20,
   },
   actionButton: {
     // marginBottom: 16,
