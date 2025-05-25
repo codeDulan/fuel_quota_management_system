@@ -19,6 +19,11 @@ import Register from "./pages/Register";
 import UserProfile from "./pages/UserProfile";
 
 
+// Pages - Vehicle Owner
+import VehicleDashboard from "./pages/VehicleDashboard";
+import VehicleRegistration from "./pages/VehicleRegistration";
+import VehicleList from "./pages/VehicleList";
+
 // Pages - Station Owner
 import StationDashboard from "./pages/StationDashboard";
 import StationRegistration from "./pages/StationRegistration";
@@ -26,6 +31,13 @@ import StationList from "./pages/StationList";
 import QRScanner from "./pages/QRScanner";
 import StationTransactions from "./pages/StationTransactions";
 import StationTransactionHistory from "./pages/StationTransactionHistory";
+
+// Pages - Admin
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminReports from "./pages/AdminReports";
+import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminVehicleManagement from "./pages/AdminVehicleManagement";
+import AdminStationManagement from "./pages/AdminStationManagement";
 
 // Services
 import AuthService from "./services/AuthService";
@@ -156,6 +168,41 @@ function App() {
               )
             }
           />
+
+{/* Vehicle owner routes */}
+          <Route
+            path="/vehicle"
+            element={
+              <PrivateRoute roles={["ROLE_VEHICLE_OWNER"]}>
+                <VehicleDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/vehicle/add"
+            element={
+              <PrivateRoute roles={["ROLE_VEHICLE_OWNER"]}>
+                <VehicleRegistration />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/vehicle/list"
+            element={
+              <PrivateRoute roles={["ROLE_VEHICLE_OWNER"]}>
+                <VehicleList />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/vehicle/quota"
+            element={
+              <PrivateRoute roles={["ROLE_VEHICLE_OWNER"]}>
+                <VehicleList />
+              </PrivateRoute>
+            }
+          />
+
           {/* Station owner routes - UPDATED SECTION */}
           <Route
             path="/station"
@@ -278,6 +325,58 @@ function App() {
             element={
               <PrivateRoute roles={["ROLE_STATION_OWNER"]}>
                 <StationDashboard />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Admin routes */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute roles={["ROLE_ADMIN"]}>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <PrivateRoute roles={["ROLE_ADMIN"]}>
+                <AdminUserManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/vehicles"
+            element={
+              <PrivateRoute roles={["ROLE_ADMIN"]}>
+                <AdminVehicleManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/stations"
+            element={
+              <PrivateRoute roles={["ROLE_ADMIN"]}>
+                <AdminStationManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <PrivateRoute roles={["ROLE_ADMIN"]}>
+                <AdminReports />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Profile route (available to all logged-in users) */}
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <UserProfile />
               </PrivateRoute>
             }
           />
