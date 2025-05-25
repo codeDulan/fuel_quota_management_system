@@ -107,10 +107,82 @@ const HomeScreen = ({ navigation }) => {
       </LinearGradient>
 
       {/* Today's Statistics */}
-      
+      <View style={styles.statsContainer}>
+        <Text style={styles.sectionTitle}>Today's Performance</Text>
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <MaterialIcons
+              name="receipt"
+              size={28}
+              color={Colors.primary}
+            />
+            <Text style={styles.statNumber}>{todayStats.transactions}</Text>
+            <Text style={styles.statLabel}>Transactions</Text>
+          </View>
+
+          <View style={styles.statCard}>
+            <MaterialIcons
+              name="local-gas-station"
+              size={28}
+              color={Colors.secondary}
+            />
+            <Text style={styles.statNumber}>{todayStats.fuelDispensed.toFixed(1)}L</Text>
+            <Text style={styles.statLabel}>Fuel Dispensed</Text>
+          </View>
+        </View>
+      </View>      
 
       {/* Quick Actions */}
-      
+      <View style={styles.actionsContainer}>
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+        {/* Primary Action - QR Scanner */}
+        <TouchableOpacity
+          style={styles.primaryAction}
+          onPress={() => navigation.navigate('QRScanner')}
+          activeOpacity={0.5}
+        >
+          <LinearGradient
+            colors={Colors.gradients.success}
+            style={styles.actionGradient}
+          >
+            <MaterialIcons
+              name="qr-code-scanner"
+              size={40}
+              color={Colors.textWhite}
+            />
+            <Text style={styles.actionButtonText}>Scan Vehicle QR</Text>
+            <Text style={styles.actionButtonSubtext}>Check quota & dispense fuel</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Secondary Action */}
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('TransactionHistory')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.actionContent}>
+            <View style={styles.actionIconContainer}>
+              <MaterialIcons
+                name="history"
+                size={24}
+                color={Colors.primary}
+              />
+            </View>
+            <View style={styles.actionTextContainer}>
+              <Text style={styles.actionTitle}>Transaction History</Text>
+              <Text style={styles.actionSubtitle}>View fuel transactions</Text>
+            </View>
+            <MaterialIcons
+              name="chevron-right"
+              size={20}
+              color={Colors.textLight}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
+
       {/* Station Information */}
       <View style={styles.infoContainer}>
         <Text style={styles.sectionTitle}>Station Information</Text>
