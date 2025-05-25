@@ -575,5 +575,4 @@ const UserProfile = () => {
     </Container>
   );
 };
-
 export default UserProfile;
