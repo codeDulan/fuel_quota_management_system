@@ -53,7 +53,25 @@ const ApiService = {
     });
     return response.data;
   },
+  
+  // Vehicle quota endpoints
+  checkQuotaByQR: async (qrData) => {
+    const response = await apiClient.get(`/fuel/quota/scan/${qrData}`);
+    return response.data;
+  },
 
+  // Transaction endpoints
+  recordFuelPump: async (fuelPumpData) => {
+    const response = await apiClient.post('/fuel/pump', fuelPumpData);
+    return response.data;
+  },
+
+  getStationTransactions: async (stationId) => {
+    const response = await apiClient.get(`/fuel/transactions/station/${stationId}`);
+    return response.data;
+  },
+  
+  // Station endpoints
   getMyStations: async () => {
     const response = await apiClient.get('/station/my-stations');
     return response.data;
@@ -75,7 +93,6 @@ const ApiService = {
     const response = await apiClient.get(`/station/${stationId}/dashboard`);
     return response.data;
   },
-  
 };
 
 export default ApiService;
